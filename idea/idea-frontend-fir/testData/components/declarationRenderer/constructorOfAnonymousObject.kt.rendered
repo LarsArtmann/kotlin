@@ -1,0 +1,7 @@
+private fun resolveAccessorCall(suspendPropertyDescriptor: [ERROR : PropertyDescriptor], context: [ERROR : TranslationContext]): [ERROR : ResolvedCall<PropertyDescriptor>]<[ERROR : PropertyDescriptor]>
+value-parameter suspendPropertyDescriptor: [ERROR : PropertyDescriptor]
+value-parameter context: [ERROR : TranslationContext]
+local final class <no name provided>
+open fun getStatus(): [ERROR : <ERROR PROPERTY TYPE>]
+open fun getCandidateDescriptor(): [ERROR : PropertyDescriptor]
+open fun getResultingDescriptor(): [ERROR : PropertyDescriptor]

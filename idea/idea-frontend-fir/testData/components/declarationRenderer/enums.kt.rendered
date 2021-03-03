@@ -1,0 +1,29 @@
+final enum class Order : kotlin.Enum<Order>
+enum entry FIRST
+enum entry SECOND
+enum entry THIRD
+final enum class Planet : kotlin.Enum<Planet>
+private constructor Planet(m: kotlin.Double, r: kotlin.Double)
+final val m: kotlin.Double
+internal final val r: kotlin.Double
+enum entry MERCURY
+override fun sayHello()
+enum entry VENERA
+override fun sayHello()
+enum entry EARTH
+override fun sayHello()
+final val g: kotlin.Double
+abstract fun sayHello()
+companion object
+const final val G: kotlin.Double
+final enum class PseudoInsn : kotlin.Enum<PseudoInsn>
+private constructor PseudoInsn(signature: kotlin.String = ...)
+final val signature: kotlin.String
+enum entry FIX_STACK_BEFORE_JUMP
+enum entry FAKE_ALWAYS_TRUE_IFEQ
+enum entry FAKE_ALWAYS_FALSE_IFEQ
+enum entry SAVE_STACK_BEFORE_TRY
+enum entry RESTORE_STACK_IN_TRY_CATCH
+enum entry STORE_NOT_NULL
+enum entry AS_NOT_NULL
+final fun emit()

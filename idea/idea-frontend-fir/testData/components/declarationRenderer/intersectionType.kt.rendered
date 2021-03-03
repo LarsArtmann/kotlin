@@ -1,0 +1,2 @@
+private fun foo(x: kotlin.Any): kotlin.Any?
+value-parameter x: kotlin.Any

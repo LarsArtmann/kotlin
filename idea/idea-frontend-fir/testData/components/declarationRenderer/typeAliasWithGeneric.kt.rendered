@@ -1,0 +1,7 @@
+open class A
+interface B<S, T : A>
+<S>
+<T : A>
+typealias C<T> = B<T, A>
+<T>
+final class D : C<A>

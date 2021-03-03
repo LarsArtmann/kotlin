@@ -1,0 +1,14 @@
+interface Some
+object O1 : Some
+object O2 : Some
+final enum class SomeEnum : kotlin.Enum<SomeEnum>
+private constructor SomeEnum(x: Some)
+final val x: Some
+enum entry FIRST
+override fun check(y: Some): kotlin.Boolean
+value-parameter y: Some
+enum entry SECOND
+override fun check(y: Some): kotlin.Boolean
+value-parameter y: Some
+abstract fun check(y: Some): kotlin.Boolean
+value-parameter y: Some

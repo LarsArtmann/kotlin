@@ -1,0 +1,4 @@
+interface A
+interface B
+final class C<T : A> where T : B
+<T : A & B>

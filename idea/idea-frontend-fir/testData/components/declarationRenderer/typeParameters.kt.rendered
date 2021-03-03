@@ -1,0 +1,15 @@
+interface List<out T : kotlin.Any>
+<out T : kotlin.Any>
+abstract operator fun get(index: kotlin.Int): T
+value-parameter index: kotlin.Int
+abstract infix fun concat(other: List<T>): List<T>
+value-parameter other: List<T>
+typealias StringList = List<out kotlin.String>
+typealias AnyList = List<*>
+abstract class AbstractList<out T : kotlin.Any> : List<T>
+<out T : kotlin.Any>
+final class SomeList : AbstractList<kotlin.Int>
+override fun get(index: kotlin.Int): kotlin.Int
+value-parameter index: kotlin.Int
+override fun concat(other: List<kotlin.Int>): List<kotlin.Int>
+value-parameter other: List<kotlin.Int>

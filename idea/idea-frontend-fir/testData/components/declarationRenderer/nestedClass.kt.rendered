@@ -1,0 +1,8 @@
+abstract class Base
+constructor Base(s: kotlin.String)
+final val s: kotlin.String
+final class Outer
+final class Derived : Base
+constructor Derived(s: kotlin.String)
+value-parameter s: kotlin.String
+object Obj : Base

@@ -1,0 +1,12 @@
+val x: kotlin.Int
+val delegate: kotlin.Any
+local final class <no name provided>
+open fun getValue(thisRef: kotlin.Any?, property: kotlin.reflect.KProperty<*>): kotlin.Int
+value-parameter thisRef: kotlin.Any?
+value-parameter property: kotlin.reflect.KProperty<*>
+open fun setValue(thisRef: kotlin.Any?, property: kotlin.reflect.KProperty<*>, value: kotlin.Int)
+value-parameter thisRef: kotlin.Any?
+value-parameter property: kotlin.reflect.KProperty<*>
+value-parameter value: kotlin.Int
+val value: [ERROR : Type from delegate]
+var variable: [ERROR : Type from delegate]

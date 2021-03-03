@@ -1,0 +1,11 @@
+open class Base<T>
+<T>
+constructor Base<T>(x: T)
+final val x: T
+final class Derived<T : kotlin.Any> : Base<T>
+<T : kotlin.Any>
+constructor Derived<T : kotlin.Any>(x: T)
+value-parameter x: T
+fun <T : kotlin.Any> create(x: T): Derived<T>
+<T : kotlin.Any>
+value-parameter x: T

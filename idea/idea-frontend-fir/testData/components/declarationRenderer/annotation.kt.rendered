@@ -1,0 +1,15 @@
+@kotlin.annotation.Target(allowedTargets = {AnnotationTarget.ANNOTATION_CLASS}) final annotation class base : kotlin.Annotation
+@base final annotation class derived : kotlin.Annotation
+@base final class correct
+constructor correct(x: kotlin.Int)
+@base final val x: kotlin.Int
+@base constructor correct()
+@base final enum class My : kotlin.Enum<My>
+@base enum entry FIRST
+@base enum entry SECOND
+@base fun foo(@base y: @base kotlin.Int): kotlin.Int
+value-parameter @base y: @base kotlin.Int
+@base local final fun bar(@base z: @base kotlin.Int): kotlin.Int
+value-parameter @base z: @base kotlin.Int
+val local: kotlin.Int
+@base val z: kotlin.Int

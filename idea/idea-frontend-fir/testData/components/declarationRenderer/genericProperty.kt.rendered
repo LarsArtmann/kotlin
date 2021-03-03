@@ -1,0 +1,5 @@
+fun <T> genericFoo(): T
+<T>
+val <T> T.generic: T
+<T>
+fun T.<get-generic>(): T

@@ -1,0 +1,13 @@
+fun <T> simpleRun(f: (T) -> kotlin.Unit)
+<T>
+value-parameter f: (T) -> kotlin.Unit
+val <no name provided>: T
+fun <T, R> kotlin.collections.List<T>.simpleMap(f: (T) -> R): R
+<T>
+<R>
+value-parameter f: (T) -> R
+val <no name provided>: T
+fun <T> simpleWith(t: T, f: T.() -> kotlin.Unit)
+<T>
+value-parameter t: T
+value-parameter f: T.() -> kotlin.Unit

@@ -1,0 +1,8 @@
+final class C<T, out S>
+<T>
+<out S>
+final inner class D<R, in P>
+<R>
+<in P>
+interface Test
+abstract val x: a.b.C<out kotlin.CharSequence, *>.D<in kotlin.collections.List<*>, *>

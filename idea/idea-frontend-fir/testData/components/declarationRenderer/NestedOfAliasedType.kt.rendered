@@ -1,0 +1,5 @@
+abstract class A
+abstract class Nested
+typealias TA = A
+final class B : TA
+final class NestedInB : A.Nested

@@ -1,0 +1,16 @@
+interface SomeInterface
+abstract fun foo(x: kotlin.Int, y: kotlin.String): kotlin.String
+value-parameter x: kotlin.Int
+value-parameter y: kotlin.String
+abstract val bar: kotlin.Boolean
+final class SomeClass : SomeInterface
+private final val baz: kotlin.Int
+override fun foo(x: kotlin.Int, y: kotlin.String): kotlin.String
+value-parameter x: kotlin.Int
+value-parameter y: kotlin.String
+override var bar: kotlin.Boolean
+override fun <get-bar>(): kotlin.Boolean
+open fun <set-bar>(value: kotlin.Boolean)
+value-parameter value: kotlin.Boolean
+final lateinit var fau: kotlin.Double
+final inline class InlineClass

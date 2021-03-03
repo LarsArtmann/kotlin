@@ -1,0 +1,6 @@
+final expect class MyClass
+expect fun foo(): kotlin.String
+expect val x: kotlin.Int
+final actual class MyClass
+actual fun foo(): kotlin.String
+actual val x: kotlin.Int

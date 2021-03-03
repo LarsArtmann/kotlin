@@ -1,0 +1,5 @@
+final class NoPrimary
+final val x: kotlin.String
+constructor NoPrimary(x: kotlin.String)
+value-parameter x: kotlin.String
+constructor NoPrimary()

@@ -1,0 +1,10 @@
+interface Some
+abstract class My<T : test.Some>
+<T : test.Some>
+final inner class T
+abstract val x: T
+abstract fun foo(arg: T)
+value-parameter arg: T
+abstract val y: [ERROR : T]
+abstract val z: [ERROR : T]
+final class Some

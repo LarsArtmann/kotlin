@@ -1,0 +1,11 @@
+object A
+private constructor A()
+final enum class B : kotlin.Enum<B>
+enum entry X
+private constructor X()
+final class C
+companion object
+private constructor Companion()
+val anonObject: kotlin.Any
+local final class <no name provided>
+constructor <no name provided>()

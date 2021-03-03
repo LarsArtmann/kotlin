@@ -1,0 +1,5 @@
+abstract class My
+abstract class NestedOne : p.My
+abstract class NestedTwo : p.My.NestedOne
+final class Your : p.My
+final class NestedThree : p.My.NestedOne

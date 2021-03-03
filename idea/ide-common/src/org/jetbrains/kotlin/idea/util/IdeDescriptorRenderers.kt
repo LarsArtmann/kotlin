@@ -52,7 +52,7 @@ object IdeDescriptorRenderers {
             builtIns.anyType
     }
 
-    private val BASE: DescriptorRenderer = DescriptorRenderer.withOptions {
+    val BASE: DescriptorRenderer = DescriptorRenderer.withOptions {
         normalizedVisibilities = true
         withDefinedIn = false
         renderDefaultVisibility = false
