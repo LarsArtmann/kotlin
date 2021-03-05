@@ -103,6 +103,17 @@ object SourceElementPositioningStrategies {
         PositioningStrategies.INNER_MODIFIER
     )
 
+    val FUN_MODIFIER = SourceElementPositioningStrategy(
+        LightTreePositioningStrategies.FUN_MODIFIER,
+        PositioningStrategies.FUN_MODIFIER
+    )
+
+    val SUSPEND_MODIFIER = SourceElementPositioningStrategy(
+        LightTreePositioningStrategies.SUSPEND_MODIFIER,
+        PositioningStrategies.SUSPEND_MODIFIER
+    )
+
+
     val OPERATOR = SourceElementPositioningStrategy(
         LightTreePositioningStrategies.OPERATOR,
         PositioningStrategies.OPERATOR

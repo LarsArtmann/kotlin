@@ -6,7 +6,7 @@ fun interface Base {
 }
 
 interface WithoutFun : Base
-fun interface WithFun : Base
+<!FUN_INTERFACE_WRONG_COUNT_OF_ABSTRACT_MEMBERS!>fun<!> interface WithFun : Base
 
 fun takeBase(b: Base) {}
 fun takeWithoutFun(a: WithoutFun) {}

@@ -4,7 +4,7 @@ fun interface IFoo {
     fun foo(i: Int)
 }
 
-fun interface IFoo2 : IFoo
+<!FUN_INTERFACE_WRONG_COUNT_OF_ABSTRACT_MEMBERS!>fun<!> interface IFoo2 : IFoo
 
 object A
 
