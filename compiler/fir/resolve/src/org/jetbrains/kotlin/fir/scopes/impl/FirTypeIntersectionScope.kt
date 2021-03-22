@@ -94,6 +94,23 @@ class FirTypeIntersectionScope private constructor(
             members.map { MemberWithBaseScope(it, scope) }
         }
 
+        val baseMembers = mutableSetOf<D>()
+        for ((member, scope) in allMembersWithScope) {
+            @Suppress("UNCHECKED_CAST")
+            if (member is FirNamedFunctionSymbol) {
+                scope.processOverriddenFunctions(member) {
+                    baseMembers += it as D
+                    ProcessorAction.NEXT
+                }
+            } else if (member is FirPropertySymbol) {
+                scope.processOverriddenProperties(member) {
+                    baseMembers += it as D
+                    ProcessorAction.NEXT
+                }
+            }
+        }
+        allMembersWithScope.removeIf { (member, _) -> member in baseMembers }
+
         while (allMembersWithScope.isNotEmpty()) {
             val maxByVisibility = findMemberWithMaxVisibility(allMembersWithScope)
             val extractBothWaysWithPrivate = extractBothWaysOverridable(maxByVisibility, allMembersWithScope)

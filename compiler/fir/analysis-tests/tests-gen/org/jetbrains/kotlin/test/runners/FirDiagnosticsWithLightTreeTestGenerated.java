@@ -3034,6 +3034,12 @@ public class FirDiagnosticsWithLightTreeTestGenerated extends AbstractFirDiagnos
             }
 
             @Test
+            @TestMetadata("falseIntersection.kt")
+            public void testFalseIntersection() throws Exception {
+                runTest("compiler/fir/analysis-tests/testData/resolve/problems/falseIntersection.kt");
+            }
+
+            @Test
             @TestMetadata("flexibleTypeVarAgainstNull.kt")
             public void testFlexibleTypeVarAgainstNull() throws Exception {
                 runTest("compiler/fir/analysis-tests/testData/resolve/problems/flexibleTypeVarAgainstNull.kt");

@@ -6,6 +6,6 @@ open class B {
     open fun f(): CharSequence = "charSequence"
 }
 
-class C : B(), A
+<!MANY_IMPL_MEMBER_NOT_IMPLEMENTED!>class C<!> : B(), A
 
 val obj: A = object : B(), A {}
