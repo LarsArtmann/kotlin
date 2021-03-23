@@ -6,6 +6,7 @@
   - Breaking change: `Flag.IS_INLINE` is deprecated, use `Flag.IS_VALUE` instead
 - Breaking change: deprecate `KotlinClassHeader.bytecodeVersion` and `KotlinClassHeader`'s constructor that takes a bytecode version array.
   Related to ['KT-41758`](https://youtrack.jetbrains.com/issue/KT-41758).
+- [KT-45635](https://youtrack.jetbrains.com/issue/KT-45635) Add underlying property name & type for inline classes
 
 ## 0.2.0
 
