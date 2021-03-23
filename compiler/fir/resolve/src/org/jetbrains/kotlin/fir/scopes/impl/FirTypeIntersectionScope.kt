@@ -119,7 +119,7 @@ class FirTypeIntersectionScope private constructor(
             }.takeIf { it.isNotEmpty() } ?: extractBothWaysWithPrivate
 
             val (mostSpecific, scopeForMostSpecific) = selectMostSpecificMember(extractedOverrides)
-            if (extractedOverrides.size > 1) {
+            if (extractedOverrides.size > 1 && extractedOverrides.mapTo(hashSetOf()) { it.member.callableId }.size > 1) {
                 val intersectionOverride = intersectionOverrides.getOrPut(mostSpecific) {
                     val newModality = chooseIntersectionOverrideModality(extractedOverrides)
                     val newVisibility = chooseIntersectionVisibility(extractedOverrides)
