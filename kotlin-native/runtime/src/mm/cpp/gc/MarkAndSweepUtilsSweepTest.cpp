@@ -173,6 +173,16 @@ public:
                 RunFinalizers(node->IsArray() ? node->GetArrayHeader()->obj() : node->GetObjHeader());
             }
         }
+        testing::Mock::VerifyAndClear(&finalizerHook());
+        // TODO: Figure out a better way to clear up the stuff.
+        EXPECT_CALL(finalizerHook(), Call(testing::_)).Times(testing::AnyNumber());
+        for (auto node : objectFactory_.Iter()) {
+            auto* obj = node->IsArray() ? node->GetArrayHeader()->obj() : node->GetObjHeader();
+            if (auto* extraObject = mm::ExtraObjectData::GetOrNull(obj)) {
+                extraObject->ClearWeakReferenceCounter();
+            }
+            RunFinalizers(obj);
+        }
     }
 
     KStdVector<ObjHeader*> Sweep() {
