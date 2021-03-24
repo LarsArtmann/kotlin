@@ -19,7 +19,7 @@ fun box(): String {
     object : Base, Base2 by Delegate() {
     }
 
-    object : Base2, Base by Delegate() {
+    <!DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE!>object<!> : Base2, Base by Delegate() {
     }
 
     return "OK"
