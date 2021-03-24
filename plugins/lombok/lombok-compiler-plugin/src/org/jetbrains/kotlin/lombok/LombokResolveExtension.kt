@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.lombok
 
-import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 import org.jetbrains.kotlin.resolve.jvm.SyntheticJavaPartsProvider
 import org.jetbrains.kotlin.resolve.jvm.extensions.SyntheticJavaResolveExtension
 

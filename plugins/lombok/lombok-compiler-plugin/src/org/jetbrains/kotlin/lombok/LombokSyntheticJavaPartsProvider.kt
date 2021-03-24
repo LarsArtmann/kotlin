@@ -5,71 +5,53 @@
 
 package org.jetbrains.kotlin.lombok
 
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
-import org.jetbrains.kotlin.incremental.components.NoLookupLocation
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
 import org.jetbrains.kotlin.load.java.lazy.descriptors.LazyJavaClassDescriptor
-import org.jetbrains.kotlin.load.java.propertyNameByGetMethodName
-import org.jetbrains.kotlin.load.java.structure.JavaField
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.lombok.processor.GetterProcessor
+import org.jetbrains.kotlin.lombok.processor.Parts
+import org.jetbrains.kotlin.lombok.processor.Processor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.jvm.SyntheticJavaPartsProvider
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import java.util.*
 
 class LombokSyntheticJavaPartsProvider : SyntheticJavaPartsProvider {
 
-    override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> {
-        val getters = makeGetters(thisDescriptor)
-        return getters.map { it.name }
-    }
+    private val processors = initProcessors()
 
-    private fun makeGetters(thisDescriptor: ClassDescriptor): List<SimpleFunctionDescriptor> {
-        extractClass(thisDescriptor)?.let { jClass ->
-            val fieldsToGet = jClass.fields.filter { it.findAnnotation(LombokAnnotationNames.GETTER) != null }
-            val getters = fieldsToGet.map { makeGetter(thisDescriptor, it) }
-            return getters
-        }
-        return emptyList()
-    }
+    private fun initProcessors(): List<Processor> =
+        listOf(
+            GetterProcessor()
+        )
 
-    private fun makeGetter(classDescriptor: ClassDescriptor, field: JavaField): SimpleFunctionDescriptor {
-        val fieldDescriptor =
-            classDescriptor.unsubstitutedMemberScope.getContributedVariables(field.name, NoLookupLocation.FROM_SYNTHETIC_SCOPE).single()
-        val methodDescriptor = SimpleFunctionDescriptorImpl.create(
-            classDescriptor,
-            Annotations.EMPTY,
-            Name.identifier("get" + field.name.identifier.capitalizeAsciiOnly()),
-            CallableMemberDescriptor.Kind.SYNTHESIZED,
-            classDescriptor.source
-        )
-        methodDescriptor.initialize(
-            null,
-            classDescriptor.thisAsReceiverParameter,
-            mutableListOf(),
-            emptyList(),
-            fieldDescriptor.returnType,
-            Modality.OPEN,
-            DescriptorVisibilities.PUBLIC
-        )
-        return methodDescriptor
-    }
+    private val partsCache: MutableMap<ClassDescriptor, Parts> = WeakHashMap()
+
+    override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> =
+        getSyntheticParts(thisDescriptor).methods.map { it.name }
 
     override fun generateSyntheticMethods(
         thisDescriptor: ClassDescriptor,
         name: Name,
         result: MutableCollection<SimpleFunctionDescriptor>
     ) {
-        extractClass(thisDescriptor)?.let { jClass ->
-            val fieldName = propertyNameByGetMethodName(name)
-            val fieldsToGet = jClass.fields.filter { it.name == fieldName && it.findAnnotation(LombokAnnotationNames.GETTER) != null }
-            val getters = fieldsToGet.map { makeGetter(thisDescriptor, it) }
-            result.addAll(getters)
+        getSyntheticParts(thisDescriptor).methods.find { it.name == name }?.let {
+            result.add(it)
         }
     }
 
     private fun extractClass(descriptor: ClassDescriptor): JavaClassImpl? =
         (descriptor as? LazyJavaClassDescriptor)?.jClass as? JavaClassImpl
+
+    private fun getSyntheticParts(descriptor: ClassDescriptor): Parts =
+        extractClass(descriptor)?.let { jClass ->
+            partsCache.getOrPut(descriptor) {
+                computeSyntheticParts(descriptor, jClass)
+            }
+        } ?: Parts.Empty
+
+    private fun computeSyntheticParts(descriptor: ClassDescriptor, jClass: JavaClassImpl): Parts =
+        processors.map { it.contribute(descriptor, jClass) }.reduce { a, b -> a + b }
 
 
 }

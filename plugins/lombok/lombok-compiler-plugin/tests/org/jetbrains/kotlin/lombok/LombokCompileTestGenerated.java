@@ -29,6 +29,11 @@ public class LombokCompileTestGenerated extends AbstractLombokCompileTest {
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("plugins/lombok/lombok-compiler-plugin/testData/compile"), Pattern.compile("^(.+)\\.kt$"), null, true);
     }
 
+    @TestMetadata("getters.kt")
+    public void testGetters() throws Exception {
+        runTest("plugins/lombok/lombok-compiler-plugin/testData/compile/getters.kt");
+    }
+
     @TestMetadata("simple.kt")
     public void testSimple() throws Exception {
         runTest("plugins/lombok/lombok-compiler-plugin/testData/compile/simple.kt");
