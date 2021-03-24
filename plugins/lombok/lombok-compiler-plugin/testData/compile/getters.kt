@@ -9,16 +9,13 @@ public class GetterTest {
     @Getter(AccessLevel.PROTECTED) private String name;
 
     @Getter private boolean primitiveBoolean;
-    
-//    public boolean getPrimitiveBoolean() {
-//        return true;
-//    }
 
     @Getter private Boolean boxedBoolean;
 
-//    void test() {
-//        getAge();
-//    }
+    void test() {
+        getAge();
+        isPrimitiveBoolean();
+    }
 
 }
 
@@ -31,8 +28,9 @@ object Test {
         val getter = obj.getAge()
         val property = obj.age
 
+        //todo kotlin doesn't see isBoolean methods as properties
 //        obj.primitiveBoolean
-//        obj.isPrimitiveBoolean()
+        obj.isPrimitiveBoolean()
 
         obj.boxedBoolean
         obj.getBoxedBoolean()

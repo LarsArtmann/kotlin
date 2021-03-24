@@ -19,6 +19,8 @@ dependencies {
     testImplementation(projectTests(":compiler:tests-common"))
 
     testImplementation("org.projectlombok:lombok:1.18.16")
+
+    testRuntimeOnly(toolsJar())
 }
 
 sourceSets {
