@@ -891,7 +891,7 @@ open class RawFirBuilder(
             val objectDeclaration = expression.objectDeclaration
             return withChildClassName(ANONYMOUS_OBJECT_NAME) {
                 buildAnonymousObject {
-                    source = expression.toFirSourceElement()
+                    source = objectDeclaration.toFirSourceElement()
                     session = baseSession
                     origin = FirDeclarationOrigin.Source
                     classKind = ClassKind.OBJECT
