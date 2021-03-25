@@ -180,6 +180,7 @@ object FirNotImplementedOverrideChecker : FirClassChecker() {
                     }
                 }
                 if (manyMemberNotImplementedReported) continue
+                if (intersections.mapTo(hashSetOf()) { it.callableId }.size == 1) continue
                 if (intersections.any {
                         (it.containingClass()?.toSymbol(context.session)?.fir as? FirRegularClass)?.classKind == ClassKind.CLASS
                     }
