@@ -108,7 +108,7 @@ FILE fqName:<root> fileName:/DelegationAndInheritanceFromJava.kt
       $this: VALUE_PARAMETER name:<this> type:<root>.Impl
       BLOCK_BODY
         RETURN type=kotlin.Nothing from='public open fun isEmpty (): kotlin.Boolean declared in <root>.Impl'
-          CALL 'public abstract fun isEmpty (): kotlin.Boolean [fake_override] declared in kotlin.collections.MutableSet' type=kotlin.Boolean origin=null
+          CALL 'public abstract fun isEmpty (): kotlin.Boolean declared in kotlin.collections.Set' type=kotlin.Boolean origin=null
             $this: GET_FIELD 'FIELD DELEGATE name:<$$delegate_0> type:<root>.Foo.B visibility:local [final]' type=<root>.Foo.B origin=null
               receiver: GET_VAR '<this>: <root>.Impl declared in <root>.Impl.isEmpty' type=<root>.Impl origin=null
     PROPERTY DELEGATED_MEMBER name:size visibility:public modality:OPEN [val]
@@ -120,7 +120,7 @@ FILE fqName:<root> fileName:/DelegationAndInheritanceFromJava.kt
         $this: VALUE_PARAMETER name:<this> type:<root>.Impl
         BLOCK_BODY
           RETURN type=kotlin.Nothing from='public open fun <get-size> (): kotlin.Int declared in <root>.Impl'
-            CALL 'public abstract fun <get-size> (): kotlin.Int [fake_override] declared in kotlin.collections.MutableSet' type=kotlin.Int origin=null
+            CALL 'public abstract fun <get-size> (): kotlin.Int declared in kotlin.collections.Set' type=kotlin.Int origin=null
               $this: GET_FIELD 'FIELD DELEGATE name:<$$delegate_0> type:<root>.Foo.B visibility:local [final]' type=<root>.Foo.B origin=null
                 receiver: GET_VAR '<this>: <root>.Impl declared in <root>.Impl.<get-size>' type=<root>.Impl origin=null
     FIELD DELEGATE name:<$$delegate_0> type:<root>.Foo.B visibility:local [final]
