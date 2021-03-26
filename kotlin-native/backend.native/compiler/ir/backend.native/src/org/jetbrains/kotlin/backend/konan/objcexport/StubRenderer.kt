@@ -15,18 +15,14 @@ object StubRenderer {
     fun render(stub: Stub<*>): List<String> = render(stub, false)
     internal fun render(stub: Stub<*>, shouldExportKDoc: Boolean): List<String> = collect {
         stub.run {
-            val kDoc = if (shouldExportKDoc) {
-                this.descriptor?.extractKDocString()
-            } else null
-            kDoc?.let {
-                +"" // Probably makes the output more readable.
-                +it // Let's try to keep non-trivial kdoc formatting intact
-            }
 
-            this.comment?.let { comment ->
-                kDoc?: let { +"" } // Probably makes the output more readable.
+            val kDocLines = descriptor?.extractKDocLines()
+
+            if (kDocLines != null || comment != null) {
+                +"" // Probably makes the output more readable.
                 +"/**"
-                comment.contentLines.forEach {
+                kDocLines?.forEach { +" $it" }
+                comment?.contentLines?.forEach {
                     +" $it"
                 }
                 +"*/"
@@ -219,5 +215,21 @@ fun formatGenerics(buffer: Appendable, generics: List<Any>) {
 private fun DeclarationDescriptor.extractKDocString(): String? {
     return (this as? DeclarationDescriptorWithSource)?.findKDocString()
             ?: extractSerializedKdocString()
+}
+
+/**
+ * Parse kdoc removing surrounding stuff including lead and tail blank lines.
+ * Remove each line indent with leading asterisk.
+ * @return non-empty list of strings or null
+ */
+private fun DeclarationDescriptor.extractKDocLines(): List<String>? {
+    extractKDocString()?.let {
+        if (it.isEmpty()) return@extractKDocLines null // workaround for empty kdoc: is it a bug?
+        val lines = it.trim().removeSurrounding("/**", "*/").trim().lines().map { line ->
+            line.trim().trimStart('*').trimStart()
+        }
+        if (lines.isNotEmpty()) return@extractKDocLines lines
+    }
+    return null
 }
 
