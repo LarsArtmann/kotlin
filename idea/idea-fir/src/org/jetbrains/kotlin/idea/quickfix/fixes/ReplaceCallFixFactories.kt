@@ -5,6 +5,10 @@
 
 package org.jetbrains.kotlin.idea.quickfix.fixes
 
+import org.jetbrains.kotlin.idea.KotlinBundle
+import org.jetbrains.kotlin.idea.api.applicator.HLApplicatorInput
+import org.jetbrains.kotlin.idea.api.applicator.applicatorByQuickFix
+import org.jetbrains.kotlin.idea.fir.api.fixes.HLQuickFix
 import org.jetbrains.kotlin.idea.fir.api.fixes.diagnosticFixFactory
 import org.jetbrains.kotlin.idea.frontend.api.fir.diagnostics.KtFirDiagnostic
 import org.jetbrains.kotlin.idea.frontend.api.types.KtTypeNullability
