@@ -4,6 +4,7 @@
  */
 
 @file:OptIn(ExperimentalTime::class)
+@file:Suppress("INVISIBLE_MEMBER")
 package test.time
 
 import test.numbers.assertAlmostEquals
@@ -314,7 +315,7 @@ class DurationTest {
             val value = Long.MAX_VALUE / 2 + offset
             val base = Duration.nanoseconds(value)
             val baseNs = base.toLongMilliseconds() * 1_000_000
-            assertEquals(baseNs, base.toLongNanoseconds())
+            assertEquals(baseNs, base.toLongNanoseconds())  // base stored as millis
 
             val smallDeltas = listOf(1L, 2L, 1000L, offset / 2 - 1) + List(10) { Random.nextLong(offset / 2) }
             for (smallDeltaNs in smallDeltas) {
