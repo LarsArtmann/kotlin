@@ -306,7 +306,30 @@ class DurationTest {
     fun subtraction() {
         assertEquals(Duration.hours(10), Duration.days(0.5) - Duration.minutes(120))
         assertEquals(Duration.milliseconds(850), Duration.seconds(1) - Duration.milliseconds(150))
+        assertEquals(Duration.milliseconds(1150), Duration.seconds(1) - Duration.milliseconds(-150))
         assertEquals(Duration.milliseconds(1), Duration.microseconds(Long.MAX_VALUE) - Duration.microseconds(Long.MAX_VALUE - 1_000))
+
+        run {
+            val offset = 2_000_000L
+            val value = Long.MAX_VALUE / 2 + offset
+            val base = Duration.nanoseconds(value)
+            val baseNs = base.toLongMilliseconds() * 1_000_000
+            assertEquals(baseNs, base.toLongNanoseconds())
+
+            val smallDeltas = listOf(1L, 2L, 1000L, offset / 2 - 1) + List(10) { Random.nextLong(offset / 2) }
+            for (smallDeltaNs in smallDeltas) {
+                assertEquals(base, base - Duration.nanoseconds(smallDeltaNs), "delta: $smallDeltaNs")
+            }
+
+            val deltas = listOf(offset + 1L, offset + 1500L) +
+                    List(10) { Random.nextLong(offset + 1500, offset + 10000) } +
+                    List(100) { Random.nextLong(offset + 1500, Long.MAX_VALUE / 2) }
+            for (deltaNs in deltas) {
+                val delta = Duration.nanoseconds(deltaNs)
+                assertEquals(deltaNs, delta.toLongNanoseconds())
+                assertEquals(baseNs - deltaNs, (base - delta).toLongNanoseconds(), "base: $baseNs, delta: $deltaNs")
+            }
+        }
 
         for (value in listOf(Duration.ZERO, Duration.nanoseconds(1), Duration.days(500 * 365))) {
             for (inf in listOf(Duration.INFINITE, -Duration.INFINITE)) {

@@ -235,10 +235,10 @@ public value class Duration internal constructor(internal val value: Long) : Com
             val bMillis = nanosToMillis(b)
             val resultMillis = a + bMillis
             return if (resultMillis in MIN_MILLIS_IN_NANOS..MAX_MILLIS_IN_NANOS) {
-                val bRemainder = b - bMillis
+                val bRemainder = b - millisToNanos(bMillis)
                 Duration(storeAsNanos(millisToNanos(resultMillis) + bRemainder)) // can it overflow nanos?
             } else {
-                Duration(storeAsNanos(resultMillis.coerceIn(MIN_LONG_63, MAX_LONG_63)))
+                Duration(storeAsMillis(resultMillis.coerceIn(MIN_LONG_63, MAX_LONG_63)))
             }
         }
     }
@@ -530,8 +530,8 @@ public value class Duration internal constructor(internal val value: Long) : Com
         val rawValue = rawValue
         return when {
             isInNanos() -> rawValue
-            rawValue > Long.MAX_VALUE / 1_000_000 -> Long.MAX_VALUE
-            rawValue < Long.MIN_VALUE / 1_000_000 -> Long.MIN_VALUE
+            rawValue > Long.MAX_VALUE / NANOS_IN_MILLIS -> Long.MAX_VALUE
+            rawValue < Long.MIN_VALUE / NANOS_IN_MILLIS -> Long.MIN_VALUE
             else -> millisToNanos(rawValue)
         }
     }
