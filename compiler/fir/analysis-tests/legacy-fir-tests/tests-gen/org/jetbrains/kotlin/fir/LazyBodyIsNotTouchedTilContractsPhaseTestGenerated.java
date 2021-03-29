@@ -2706,6 +2706,11 @@ public class LazyBodyIsNotTouchedTilContractsPhaseTestGenerated extends Abstract
             runTest("compiler/fir/analysis-tests/testData/resolve/problems/safeCallInvoke.kt");
         }
 
+        @TestMetadata("scriptSymbol.kt")
+        public void testScriptSymbol() throws Exception {
+            runTest("compiler/fir/analysis-tests/testData/resolve/problems/scriptSymbol.kt");
+        }
+
         @TestMetadata("secondaryConstructorCfg.kt")
         public void testSecondaryConstructorCfg() throws Exception {
             runTest("compiler/fir/analysis-tests/testData/resolve/problems/secondaryConstructorCfg.kt");

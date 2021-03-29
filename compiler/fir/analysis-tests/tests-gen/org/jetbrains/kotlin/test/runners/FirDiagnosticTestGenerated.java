@@ -3066,6 +3066,12 @@ public class FirDiagnosticTestGenerated extends AbstractFirDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("scriptSymbol.kt")
+            public void testScriptSymbol() throws Exception {
+                runTest("compiler/fir/analysis-tests/testData/resolve/problems/scriptSymbol.kt");
+            }
+
+            @Test
             @TestMetadata("secondaryConstructorCfg.kt")
             public void testSecondaryConstructorCfg() throws Exception {
                 runTest("compiler/fir/analysis-tests/testData/resolve/problems/secondaryConstructorCfg.kt");

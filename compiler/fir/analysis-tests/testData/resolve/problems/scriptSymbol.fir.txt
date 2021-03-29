@@ -1,0 +1,50 @@
+FILE: scriptSymbol.kt
+    public abstract interface DeclarationDescriptor : R|kotlin/Any| {
+    }
+    public abstract interface ClassifierDescriptor : R|DeclarationDescriptor| {
+    }
+    public abstract interface ScriptDescriptor : R|ClassifierDescriptor| {
+    }
+    public abstract interface IrSymbol : R|kotlin/Any| {
+        public abstract val descriptor: R|DeclarationDescriptor|
+            public get(): R|DeclarationDescriptor|
+
+    }
+    public abstract interface IrClassifierSymbol : R|IrSymbol| {
+        public abstract override val descriptor: R|ClassifierDescriptor|
+            public get(): R|ClassifierDescriptor|
+
+    }
+    public abstract interface IrBindableSymbol<out D : R|DeclarationDescriptor|> : R|IrSymbol| {
+        public abstract override val descriptor: R|D|
+            public get(): R|D|
+
+    }
+    public abstract interface IrScriptSymbol : R|IrClassifierSymbol|, R|IrBindableSymbol<ScriptDescriptor>| {
+    }
+    public abstract class IrSymbolBase<out D : R|DeclarationDescriptor|> : R|IrSymbol| {
+        public constructor<out D : R|DeclarationDescriptor|>(_descriptor: R|D?|): R|IrSymbolBase<D>| {
+            super<R|kotlin/Any|>()
+        }
+
+        private final val _descriptor: R|D?| = R|<local>/_descriptor|
+            private get(): R|D?|
+
+        public open override val descriptor: R|D|
+            public get(): R|D| {
+                ^ this@R|/IrSymbolBase|.R|/IrSymbolBase._descriptor|!!
+            }
+
+    }
+    public abstract class IrBindableSymbolBase<out D : R|DeclarationDescriptor|> : R|IrBindableSymbol<D>|, R|IrSymbolBase<D>| {
+        public constructor<out D : R|DeclarationDescriptor|>(descriptor: R|D?|): R|IrBindableSymbolBase<D>| {
+            super<R|IrSymbolBase<D>|>(R|<local>/descriptor|)
+        }
+
+    }
+    public final class IrScriptSymbolImpl : R|IrScriptSymbol|, R|IrBindableSymbolBase<ScriptDescriptor>| {
+        public constructor(descriptor: R|ScriptDescriptor?| = Null(null)): R|IrScriptSymbolImpl| {
+            super<R|IrBindableSymbolBase<ScriptDescriptor>|>(R|<local>/descriptor|)
+        }
+
+    }
