@@ -1,7 +1,6 @@
 package org.jetbrains.kotlin.gradle.internal.testing.tcsmc
 
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessage
-import org.gradle.internal.operations.OperationIdentifier
 import org.jetbrains.kotlin.gradle.internal.testing.RecordingTestResultProcessor
 import org.jetbrains.kotlin.gradle.internal.testing.TCServiceMessagesClient
 import org.jetbrains.kotlin.gradle.internal.testing.TCServiceMessagesClientSettings
@@ -21,7 +20,7 @@ open class TCServiceMessagesClientTest {
         val results = RecordingTestResultProcessor()
         val client = createClient(results)
 
-        client.root(OperationIdentifier(1)) {
+        client.root {
             client.produceServiceMessage()
         }
 
