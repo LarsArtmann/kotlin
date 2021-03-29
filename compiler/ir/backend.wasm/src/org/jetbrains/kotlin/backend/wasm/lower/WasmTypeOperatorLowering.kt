@@ -69,8 +69,8 @@ class WasmBaseTypeOperatorTransformer(val context: WasmBackendContext) : IrEleme
         }
     }
 
-    private fun IrBlockBuilder.cacheValue(value: IrExpression): () -> IrExpressionWithCopy {
-        if (value.isPure(true) && value is IrExpressionWithCopy) {
+    private fun IrBlockBuilder.cacheValue(value: IrExpression): () -> IrExpression {
+        if (value.isPure(true) && value.isTrivial()) {
             return { value.deepCopyWithSymbols() }
         }
         val tmpVal = createTmpVariable(value)
@@ -84,12 +84,12 @@ class WasmBaseTypeOperatorTransformer(val context: WasmBackendContext) : IrEleme
         get() = this.erasedUpperBound?.defaultType ?: builtIns.anyType
 
     private fun generateTypeCheck(
-        valueProvider: () -> IrExpressionWithCopy,
+        valueProvider: () -> IrExpression,
         toType: IrType
     ): IrExpression {
         val toNotNullable = toType.makeNotNull()
-        val valueInstance: IrExpressionWithCopy = valueProvider()
-        val fromType = (valueInstance as IrExpression).type
+        val valueInstance: IrExpression = valueProvider()
+        val fromType = valueInstance.type
 
         // Inlined values have no type information on runtime.
         // But since they are final we can compute type checks on compile time.
@@ -129,7 +129,7 @@ class WasmBaseTypeOperatorTransformer(val context: WasmBackendContext) : IrEleme
             else -> error("Unreachable execution (coercion to non-Integer type")
         }
 
-    private fun generateTypeCheckNonNull(argument: IrExpressionWithCopy, toType: IrType): IrExpression {
+    private fun generateTypeCheckNonNull(argument: IrExpression, toType: IrType): IrExpression {
         assert(!toType.isMarkedNullable())
         return when {
             toType.isNothing() -> builder.irComposite(resultType = builtIns.booleanType) {
@@ -252,12 +252,12 @@ class WasmBaseTypeOperatorTransformer(val context: WasmBackendContext) : IrEleme
             value = expression.argument
         )
 
-    private fun generateTypeCheckWithTypeParameter(argument: IrExpressionWithCopy, toType: IrType): IrExpression {
+    private fun generateTypeCheckWithTypeParameter(argument: IrExpression, toType: IrType): IrExpression {
         val typeParameter = toType.classifierOrNull?.owner as? IrTypeParameter
             ?: error("expected type parameter, but got $toType")
 
         return typeParameter.superTypes.fold(builder.irTrue() as IrExpression) { r, t ->
-            val check = generateTypeCheckNonNull(argument.copy() as IrExpressionWithCopy, t.makeNotNull())
+            val check = generateTypeCheckNonNull(argument.shallowCopy(), t.makeNotNull())
             builder.irCall(symbols.booleanAnd).apply {
                 putValueArgument(0, r)
                 putValueArgument(1, check)
