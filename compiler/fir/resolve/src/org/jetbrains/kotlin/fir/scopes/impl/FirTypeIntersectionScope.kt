@@ -351,6 +351,7 @@ class FirTypeIntersectionScope private constructor(
             candidates.isEmpty() -> transitivelyMostSpecific
             candidates.size == 1 -> candidates.first()
             else -> {
+                candidates.firstOrNull { it.member !is FirIntersectionCallableSymbol }?.let { return it }
                 candidates.firstOrNull {
                     val type = it.member.fir.returnTypeRef.coneTypeSafe<ConeKotlinType>()
                     type != null && type !is ConeFlexibleType
