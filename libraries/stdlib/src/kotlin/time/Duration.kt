@@ -404,7 +404,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
      */
     public inline fun <T> toComponents(action: (days: Int, hours: Int, minutes: Int, seconds: Int, nanoseconds: Int) -> T): T {
         contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return action(inDays.toInt(), hoursComponent, minutesComponent, secondsComponent, nanosecondsComponent)
+        return action(toInt(DurationUnit.DAYS), hoursComponent, minutesComponent, secondsComponent, nanosecondsComponent)
     }
 
     /**
@@ -420,7 +420,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
      */
     public inline fun <T> toComponents(action: (hours: Int, minutes: Int, seconds: Int, nanoseconds: Int) -> T): T {
         contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return action(inHours.toInt(), minutesComponent, secondsComponent, nanosecondsComponent)
+        return action(toInt(DurationUnit.HOURS), minutesComponent, secondsComponent, nanosecondsComponent)
     }
 
     /**
@@ -435,7 +435,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
      */
     public inline fun <T> toComponents(action: (minutes: Int, seconds: Int, nanoseconds: Int) -> T): T {
         contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return action(inMinutes.toInt(), secondsComponent, nanosecondsComponent)
+        return action(toInt(DurationUnit.MINUTES), secondsComponent, nanosecondsComponent)
     }
 
     /**
@@ -449,17 +449,28 @@ public value class Duration internal constructor(internal val value: Long) : Com
      */
     public inline fun <T> toComponents(action: (seconds: Long, nanoseconds: Int) -> T): T {
         contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        return action(inSeconds.toLong(), nanosecondsComponent)
+        return action(inWholeSeconds, nanosecondsComponent)
     }
 
     @PublishedApi
-    internal val hoursComponent: Int get() = (inHours % 24).toInt()
+    internal val hoursComponent: Int
+        get() = if (isInfinite()) 0 else (inWholeHours % 24).toInt()
+
     @PublishedApi
-    internal val minutesComponent: Int get() = (inMinutes % 60).toInt()
+    internal val minutesComponent: Int
+        get() = if (isInfinite()) 0 else (inWholeMinutes % 60).toInt()
+
     @PublishedApi
-    internal val secondsComponent: Int get() = (inSeconds % 60).toInt()
+    internal val secondsComponent: Int
+        get() = if (isInfinite()) 0 else (inWholeSeconds % 60).toInt()
+
     @PublishedApi
-    internal val nanosecondsComponent: Int get() = (inNanoseconds % 1e9).toInt()
+    internal val nanosecondsComponent: Int
+        get() = when {
+            isInfinite() -> 0
+            isInMillis() -> millisToNanos(rawValue % 1_000).toInt()
+            else -> (rawValue % 1_000_000_000).toInt()
+        }
 
 
     // conversion to units
@@ -497,28 +508,79 @@ public value class Duration internal constructor(internal val value: Long) : Com
     public fun toInt(unit: DurationUnit): Int =
         toLong(unit).coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
 
-    // TODO: inWholeUnits conversions, deprecate inUnits
-
     /** The value of this duration expressed as a [Double] number of days. */
+    @Deprecated("Use inWholeDays property instead or convert toDouble(DAYS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.DAYS)"))
     public val inDays: Double get() = toDouble(DurationUnit.DAYS)
 
     /** The value of this duration expressed as a [Double] number of hours. */
+    @Deprecated("Use inWholeHours property instead or convert toDouble(HOURS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.HOURS)"))
     public val inHours: Double get() = toDouble(DurationUnit.HOURS)
 
     /** The value of this duration expressed as a [Double] number of minutes. */
+    @Deprecated("Use inWholeMinutes property instead or convert toDouble(MINUTES) if a double value is required.", ReplaceWith("toDouble(DurationUnit.MINUTES)"))
     public val inMinutes: Double get() = toDouble(DurationUnit.MINUTES)
 
     /** The value of this duration expressed as a [Double] number of seconds. */
+    @Deprecated("Use inWholeSeconds property instead or convert toDouble(SECONDS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.SECONDS)"))
     public val inSeconds: Double get() = toDouble(DurationUnit.SECONDS)
 
     /** The value of this duration expressed as a [Double] number of milliseconds. */
+    @Deprecated("Use inWholeMilliseconds property instead or convert toDouble(MILLISECONDS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.MILLISECONDS)"))
     public val inMilliseconds: Double get() = toDouble(DurationUnit.MILLISECONDS)
 
     /** The value of this duration expressed as a [Double] number of microseconds. */
+    @Deprecated("Use inWholeMicroseconds property instead or convert toDouble(MICROSECONDS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.MICROSECONDS)"))
     public val inMicroseconds: Double get() = toDouble(DurationUnit.MICROSECONDS)
 
     /** The value of this duration expressed as a [Double] number of nanoseconds. */
+    @Deprecated("Use inWholeNanoseconds property instead or convert toDouble(NANOSECONDS) if a double value is required.", ReplaceWith("toDouble(DurationUnit.NANOSECONDS)"))
     public val inNanoseconds: Double get() = toDouble(DurationUnit.NANOSECONDS)
+
+
+    /** The value of this duration expressed as a [Long] number of days. */
+    @SinceKotlin("1.5")
+    public val inWholeDays: Long
+        get() = toLong(DurationUnit.DAYS)
+
+    /** The value of this duration expressed as a [Long] number of hours. */
+    @SinceKotlin("1.5")
+    public val inWholeHours: Long
+        get() = toLong(DurationUnit.HOURS)
+
+    /** The value of this duration expressed as a [Long] number of minutes. */
+    @SinceKotlin("1.5")
+    public val inWholeMinutes: Long
+        get() = toLong(DurationUnit.MINUTES)
+
+    /** The value of this duration expressed as a [Long] number of seconds. */
+    @SinceKotlin("1.5")
+    public val inWholeSeconds: Long
+        get() = toLong(DurationUnit.SECONDS)
+
+    /** The value of this duration expressed as a [Long] number of milliseconds. */
+    @SinceKotlin("1.5")
+    public val inWholeMilliseconds: Long
+        get() {
+            return if (isInMillis() && isFinite()) rawValue else toLong(DurationUnit.MILLISECONDS)
+        }
+
+    /** The value of this duration expressed as a [Long] number of microseconds. */
+    @SinceKotlin("1.5")
+    public val inWholeMicroseconds: Long
+        get() = toLong(DurationUnit.MICROSECONDS)
+
+    /** The value of this duration expressed as a [Long] number of nanoseconds. */
+    @SinceKotlin("1.5")
+    public val inWholeNanoseconds: Long
+        get() {
+            val rawValue = rawValue
+            return when {
+                isInNanos() -> rawValue
+                rawValue > Long.MAX_VALUE / NANOS_IN_MILLIS -> Long.MAX_VALUE
+                rawValue < Long.MIN_VALUE / NANOS_IN_MILLIS -> Long.MIN_VALUE
+                else -> millisToNanos(rawValue)
+            }
+        }
 
     // shortcuts
 
@@ -529,16 +591,8 @@ public value class Duration internal constructor(internal val value: Long) : Com
      *
      * The range of durations that can be expressed as a `Long` number of nanoseconds is approximately ±292 years.
      */
-    // TODO: Deprecate in favor inWholeNanoseconds
-    public fun toLongNanoseconds(): Long {
-        val rawValue = rawValue
-        return when {
-            isInNanos() -> rawValue
-            rawValue > Long.MAX_VALUE / NANOS_IN_MILLIS -> Long.MAX_VALUE
-            rawValue < Long.MIN_VALUE / NANOS_IN_MILLIS -> Long.MIN_VALUE
-            else -> millisToNanos(rawValue)
-        }
-    }
+    @Deprecated("Use inWholeNanoseconds property instead.", ReplaceWith("this.inWholeNanoseconds"))
+    public fun toLongNanoseconds(): Long = inWholeNanoseconds
 
     /**
      * Returns the value of this duration expressed as a [Long] number of milliseconds.
@@ -548,6 +602,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
      * The range of durations that can be expressed as a `Long` number of milliseconds is approximately ±292 million years.
      */
     // TODO: Deprecate in favor inWholeMilliseconds
+    @Deprecated("Use inWholeMilliseconds property instead.", ReplaceWith("this.inWholeMilliseconds"))
     public fun toLongMilliseconds(): Long {
         return if (isInMillis() && isFinite()) rawValue else toLong(DurationUnit.MILLISECONDS)
     }
@@ -570,7 +625,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
         INFINITE.value -> "Infinity"
         NEG_INFINITE.value -> "-Infinity"
         else -> {
-            val absNs = absoluteValue.inNanoseconds
+            val absNs = absoluteValue.toDouble(DurationUnit.NANOSECONDS)
             var scientific = false
             var maxDecimals = 0
             val unit = when {
