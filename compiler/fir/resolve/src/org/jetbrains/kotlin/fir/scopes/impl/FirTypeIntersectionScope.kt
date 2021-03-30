@@ -8,15 +8,12 @@ package org.jetbrains.kotlin.fir.scopes.impl
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.Visibility
-import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.*
-import org.jetbrains.kotlin.fir.dispatchReceiverClassOrNull
-import org.jetbrains.kotlin.fir.originalForIntersectionOverrideAttr
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.scopes.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.fir.symbols.impl.*
-import org.jetbrains.kotlin.fir.typeContext
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.AbstractTypeChecker
@@ -122,7 +119,13 @@ class FirTypeIntersectionScope private constructor(
             }.takeIf { it.isNotEmpty() } ?: extractBothWaysWithPrivate
 
             val (mostSpecific, scopeForMostSpecific) = selectMostSpecificMember(extractedOverrides)
-            if (extractedOverrides.size > 1) {
+            if (extractedOverrides.size > 1 &&
+                // If in fact extracted overrides are the same symbols, we should not create intersection
+                // A typical sample here is inheritance of the same class in different places of hierarchy
+                extractedOverrides.mapTo(mutableSetOf()) {
+                    it.member.fir.unwrapSubstitutionOverrides().symbol
+                }.size > 1
+            ) {
                 val intersectionOverride = intersectionOverrides.getOrPut(mostSpecific) {
                     val newModality = chooseIntersectionOverrideModality(extractedOverrides)
                     val newVisibility = chooseIntersectionVisibility(extractedOverrides)
@@ -150,6 +153,15 @@ class FirTypeIntersectionScope private constructor(
         }
 
         return true
+    }
+
+    private inline fun <reified D : FirCallableDeclaration<*>> D.unwrapSubstitutionOverrides(): D {
+        var current = this
+
+        do {
+            val next = current.originalForSubstitutionOverride ?: return current
+            current = next
+        } while (true)
     }
 
     private fun <D : FirCallableSymbol<*>> chooseIntersectionOverrideModality(
