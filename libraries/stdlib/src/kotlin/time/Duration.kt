@@ -54,10 +54,10 @@ private fun millisToNanos(millis: Long): Long = millis * NANOS_IN_MILLIS
 @SinceKotlin("1.3")
 @ExperimentalTime
 @JvmInline
-public value class Duration internal constructor(internal val value: Long) : Comparable<Duration> {
+public value class Duration internal constructor(private val rawValue: Long) : Comparable<Duration> {
 
-    private val rawValue: Long get() = value shr 1
-    private inline val unitDiscriminator: Int get() = value.toInt() and 1
+    private val value: Long get() = rawValue shr 1
+    private inline val unitDiscriminator: Int get() = rawValue.toInt() and 1
     private fun isInNanos() = unitDiscriminator == 0
     private fun isInMillis() = unitDiscriminator == 1
     private val storageUnit get() = if (isInNanos()) DurationUnit.NANOSECONDS else DurationUnit.MILLISECONDS
@@ -65,10 +65,10 @@ public value class Duration internal constructor(internal val value: Long) : Com
     init {
         // TODO: disable assertions in final version
         if (isInNanos()) {
-            if (rawValue !in -MAX_NANOS..MAX_NANOS) throw AssertionError("$rawValue ns is out of nanoseconds range")
+            if (value !in -MAX_NANOS..MAX_NANOS) throw AssertionError("$value ns is out of nanoseconds range")
         } else {
-            if (rawValue !in -MAX_MILLIS..MAX_MILLIS) throw AssertionError("$rawValue ms is out of milliseconds range")
-            if (rawValue in -MAX_NANOS_IN_MILLIS..MAX_NANOS_IN_MILLIS) throw AssertionError("$rawValue ms is denormalized")
+            if (value !in -MAX_MILLIS..MAX_MILLIS) throw AssertionError("$value ms is out of milliseconds range")
+            if (value in -MAX_NANOS_IN_MILLIS..MAX_NANOS_IN_MILLIS) throw AssertionError("$value ms is denormalized")
         }
     }
 
@@ -201,7 +201,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
     // arithmetic operators
 
     /** Returns the negative of this value. */
-    public operator fun unaryMinus(): Duration = durationOf(-rawValue, unitDiscriminator)
+    public operator fun unaryMinus(): Duration = durationOf(-value, unitDiscriminator)
 
     /**
      * Returns a duration whose value is the sum of this and [other] duration values.
@@ -211,7 +211,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
     public operator fun plus(other: Duration): Duration {
         when {
             this.isInfinite() -> {
-                if (other.isFinite() || (this.value xor other.value >= 0))
+                if (other.isFinite() || (this.rawValue xor other.rawValue >= 0))
                     return this
                 else
                     throw IllegalArgumentException("Summing infinite durations of different signs yields an undefined result.")
@@ -220,7 +220,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
         }
 
         return if (this.unitDiscriminator == other.unitDiscriminator) {
-            val result = this.rawValue + other.rawValue // never overflows long, but can overflow long63
+            val result = this.value + other.value // never overflows long, but can overflow long63
             when {
                 isInNanos() ->
                     durationOfNanosNormalized(result)
@@ -228,12 +228,12 @@ public value class Duration internal constructor(internal val value: Long) : Com
                     durationOfMillisNormalized(result)
             }
         } else {
-            addRawValuesMixedRanges(this.rawValue, other.rawValue, this.isInMillis())
+            addValuesMixedRanges(this.value, other.value, this.isInMillis())
         }
     }
 
-    private fun addRawValuesMixedRanges(a: Long, b: Long, aInMillis: Boolean): Duration {
-        if (!aInMillis) return addRawValuesMixedRanges(b, a, true)
+    private fun addValuesMixedRanges(a: Long, b: Long, aInMillis: Boolean): Duration {
+        if (!aInMillis) return addValuesMixedRanges(b, a, true)
         val bMillis = nanosToMillis(b)
         val resultMillis = a + bMillis
         return if (resultMillis in -MAX_NANOS_IN_MILLIS..MAX_NANOS_IN_MILLIS) {
@@ -266,32 +266,32 @@ public value class Duration internal constructor(internal val value: Long) : Com
         }
         if (scale == 0) return ZERO
 
-        val rawValue = rawValue
-        val result = rawValue * scale
+        val value = value
+        val result = value * scale
         return if (isInNanos()) {
-            if (rawValue in (MAX_NANOS / Int.MIN_VALUE)..(MAX_NANOS / Int.MAX_VALUE)) {
+            if (value in (MAX_NANOS / Int.MIN_VALUE)..(MAX_NANOS / Int.MAX_VALUE)) {
                 // can't overflow nanos range for any scale
                 durationOfNanos(result)
             } else {
-                if (result / scale == rawValue) {
+                if (result / scale == value) {
                     durationOfNanosNormalized(result)
                 } else {
-                    val millis = nanosToMillis(rawValue)
-                    val remNanos = rawValue - millisToNanos(millis)
+                    val millis = nanosToMillis(value)
+                    val remNanos = value - millisToNanos(millis)
                     val resultMillis = millis * scale
                     val totalMillis = resultMillis + nanosToMillis(remNanos * scale)
                     if (resultMillis / scale == millis && totalMillis xor resultMillis >= 0) {
                         durationOfMillis(totalMillis.coerceIn(-MAX_MILLIS..MAX_MILLIS))
                     } else {
-                        if (rawValue.sign * scale.sign > 0) INFINITE else NEG_INFINITE
+                        if (value.sign * scale.sign > 0) INFINITE else NEG_INFINITE
                     }
                 }
             }
         } else {
-            if (result / scale == rawValue) {
+            if (result / scale == value) {
                 durationOfMillis(result.coerceIn(-MAX_MILLIS..MAX_MILLIS))
             } else {
-                if (rawValue.sign * scale.sign > 0) INFINITE else NEG_INFINITE
+                if (value.sign * scale.sign > 0) INFINITE else NEG_INFINITE
             }
         }
     }
@@ -326,15 +326,15 @@ public value class Duration internal constructor(internal val value: Long) : Com
             }
         }
         if (isInNanos()) {
-            return durationOfNanos(rawValue / scale)
+            return durationOfNanos(value / scale)
         } else {
             if (isInfinite())
                 return (toDouble(storageUnit) / scale).toDuration(storageUnit)
 
-            val result = rawValue / scale
+            val result = value / scale
 
             if (result in -MAX_NANOS_IN_MILLIS..MAX_NANOS_IN_MILLIS) {
-                val rem = millisToNanos(rawValue - (result * scale)) / scale
+                val rem = millisToNanos(value - (result * scale)) / scale
                 return durationOfNanos(millisToNanos(result) + rem)
             }
             return durationOfMillis(result)
@@ -364,13 +364,13 @@ public value class Duration internal constructor(internal val value: Long) : Com
     }
 
     /** Returns true, if the duration value is less than zero. */
-    public fun isNegative(): Boolean = value < 0
+    public fun isNegative(): Boolean = rawValue < 0
 
     /** Returns true, if the duration value is greater than zero. */
-    public fun isPositive(): Boolean = value > 0
+    public fun isPositive(): Boolean = rawValue > 0
 
     /** Returns true, if the duration value is infinite. */
-    public fun isInfinite(): Boolean = value == INFINITE.value || value == NEG_INFINITE.value
+    public fun isInfinite(): Boolean = rawValue == INFINITE.rawValue || rawValue == NEG_INFINITE.rawValue
 
     /** Returns true, if the duration value is finite. */
     public fun isFinite(): Boolean = !isInfinite()
@@ -379,12 +379,12 @@ public value class Duration internal constructor(internal val value: Long) : Com
     public val absoluteValue: Duration get() = if (isNegative()) -this else this
 
     override fun compareTo(other: Duration): Int {
-        val compareBits = this.value xor other.value
+        val compareBits = this.rawValue xor other.rawValue
         if (compareBits < 0 || compareBits.toInt() and 1 == 0) // different signs or same sign/same range
-            return this.value.compareTo(other.value)
+            return this.rawValue.compareTo(other.rawValue)
         // same sign/different ranges
         val r = this.unitDiscriminator - other.unitDiscriminator // compare ranges
-        return if (this.value < 0) -r else r
+        return if (this.rawValue < 0) -r else r
     }
 
 
@@ -468,8 +468,8 @@ public value class Duration internal constructor(internal val value: Long) : Com
     internal val nanosecondsComponent: Int
         get() = when {
             isInfinite() -> 0
-            isInMillis() -> millisToNanos(rawValue % 1_000).toInt()
-            else -> (rawValue % 1_000_000_000).toInt()
+            isInMillis() -> millisToNanos(value % 1_000).toInt()
+            else -> (value % 1_000_000_000).toInt()
         }
 
 
@@ -477,12 +477,12 @@ public value class Duration internal constructor(internal val value: Long) : Com
 
     /** Returns the value of this duration expressed as a [Double] number of the specified [unit]. */
     public fun toDouble(unit: DurationUnit): Double {
-        return when (value) {
-            INFINITE.value -> Double.POSITIVE_INFINITY
-            NEG_INFINITE.value -> Double.NEGATIVE_INFINITY
+        return when (rawValue) {
+            INFINITE.rawValue -> Double.POSITIVE_INFINITY
+            NEG_INFINITE.rawValue -> Double.NEGATIVE_INFINITY
             else -> {
                 // TODO: whether it's ok to convert to Double before scaling
-                convertDurationUnit(rawValue.toDouble(), storageUnit, unit)
+                convertDurationUnit(value.toDouble(), storageUnit, unit)
             }
         }
     }
@@ -493,10 +493,10 @@ public value class Duration internal constructor(internal val value: Long) : Com
      * If the value doesn't fit in the range of [Long] type, it is coerced into that range, see the conversion [Double.toLong] for details.
      */
     public fun toLong(unit: DurationUnit): Long {
-        return when (value) {
-            INFINITE.value -> Long.MAX_VALUE
-            NEG_INFINITE.value -> Long.MIN_VALUE
-            else -> convertDurationUnitClamping(rawValue, storageUnit, unit)
+        return when (rawValue) {
+            INFINITE.rawValue -> Long.MAX_VALUE
+            NEG_INFINITE.rawValue -> Long.MIN_VALUE
+            else -> convertDurationUnitClamping(value, storageUnit, unit)
         }
     }
 
@@ -561,7 +561,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
     @SinceKotlin("1.5")
     public val inWholeMilliseconds: Long
         get() {
-            return if (isInMillis() && isFinite()) rawValue else toLong(DurationUnit.MILLISECONDS)
+            return if (isInMillis() && isFinite()) value else toLong(DurationUnit.MILLISECONDS)
         }
 
     /** The value of this duration expressed as a [Long] number of microseconds. */
@@ -573,12 +573,12 @@ public value class Duration internal constructor(internal val value: Long) : Com
     @SinceKotlin("1.5")
     public val inWholeNanoseconds: Long
         get() {
-            val rawValue = rawValue
+            val value = value
             return when {
-                isInNanos() -> rawValue
-                rawValue > Long.MAX_VALUE / NANOS_IN_MILLIS -> Long.MAX_VALUE
-                rawValue < Long.MIN_VALUE / NANOS_IN_MILLIS -> Long.MIN_VALUE
-                else -> millisToNanos(rawValue)
+                isInNanos() -> value
+                value > Long.MAX_VALUE / NANOS_IN_MILLIS -> Long.MAX_VALUE
+                value < Long.MIN_VALUE / NANOS_IN_MILLIS -> Long.MIN_VALUE
+                else -> millisToNanos(value)
             }
         }
 
@@ -604,7 +604,7 @@ public value class Duration internal constructor(internal val value: Long) : Com
     // TODO: Deprecate in favor inWholeMilliseconds
     @Deprecated("Use inWholeMilliseconds property instead.", ReplaceWith("this.inWholeMilliseconds"))
     public fun toLongMilliseconds(): Long {
-        return if (isInMillis() && isFinite()) rawValue else toLong(DurationUnit.MILLISECONDS)
+        return if (isInMillis() && isFinite()) value else toLong(DurationUnit.MILLISECONDS)
     }
 
     /**
@@ -620,10 +620,10 @@ public value class Duration internal constructor(internal val value: Long) : Com
      *
      * @sample samples.time.Durations.toStringDefault
      */
-    override fun toString(): String = when (value) {
+    override fun toString(): String = when (rawValue) {
         0L -> "0s"
-        INFINITE.value -> "Infinity"
-        NEG_INFINITE.value -> "-Infinity"
+        INFINITE.rawValue -> "Infinity"
+        NEG_INFINITE.rawValue -> "-Infinity"
         else -> {
             val absNs = absoluteValue.toDouble(DurationUnit.NANOSECONDS)
             var scientific = false
