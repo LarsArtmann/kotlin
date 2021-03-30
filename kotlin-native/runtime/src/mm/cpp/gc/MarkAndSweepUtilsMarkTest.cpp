@@ -63,7 +63,7 @@ protected:
     }
 
     void Finalize() {
-        if (auto* extraObjectData = mm::ExtraObjectData::GetOrNull(GetObjHeader())) {
+        if (auto* extraObjectData = mm::ExtraObjectData::Get(GetObjHeader())) {
             extraObjectData->ClearWeakReferenceCounter();
         }
         RunFinalizers(GetObjHeader());

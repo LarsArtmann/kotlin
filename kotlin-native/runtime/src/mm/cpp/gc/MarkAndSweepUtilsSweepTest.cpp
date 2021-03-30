@@ -70,7 +70,7 @@ public:
     void InstallExtraData() { mm::ExtraObjectData::Install(header()); }
 
     bool HasWeakCounter() {
-        if (auto* extraObjectData = mm::ExtraObjectData::GetOrNull(header())) {
+        if (auto* extraObjectData = mm::ExtraObjectData::Get(header())) {
             return extraObjectData->HasWeakReferenceCounter();
         }
         return false;
@@ -97,7 +97,7 @@ public:
     void InstallExtraData() { mm::ExtraObjectData::Install(header()); }
 
     bool HasWeakCounter() {
-        if (auto* extraObjectData = mm::ExtraObjectData::GetOrNull(header())) {
+        if (auto* extraObjectData = mm::ExtraObjectData::Get(header())) {
             return extraObjectData->HasWeakReferenceCounter();
         }
         return false;
@@ -124,7 +124,7 @@ public:
     void InstallExtraData() { mm::ExtraObjectData::Install(header()); }
 
     bool HasWeakCounter() {
-        if (auto* extraObjectData = mm::ExtraObjectData::GetOrNull(header())) {
+        if (auto* extraObjectData = mm::ExtraObjectData::Get(header())) {
             return extraObjectData->HasWeakReferenceCounter();
         }
         return false;
@@ -178,7 +178,7 @@ public:
         EXPECT_CALL(finalizerHook(), Call(testing::_)).Times(testing::AnyNumber());
         for (auto node : objectFactory_.Iter()) {
             auto* obj = node->IsArray() ? node->GetArrayHeader()->obj() : node->GetObjHeader();
-            if (auto* extraObject = mm::ExtraObjectData::GetOrNull(obj)) {
+            if (auto* extraObject = mm::ExtraObjectData::Get(obj)) {
                 extraObject->ClearWeakReferenceCounter();
             }
             RunFinalizers(obj);

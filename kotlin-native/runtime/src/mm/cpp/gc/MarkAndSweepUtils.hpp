@@ -39,7 +39,7 @@ void Mark(KStdVector<ObjHeader*> graySet) noexcept {
             }
         });
 
-        if (auto* extraObjectData = mm::ExtraObjectData::GetOrNull(top)) {
+        if (auto* extraObjectData = mm::ExtraObjectData::Get(top)) {
             auto* weakCounter = *extraObjectData->GetWeakCounterLocation();
             if (!isNullOrMarker(weakCounter)) {
                 graySet.push_back(weakCounter);
@@ -59,7 +59,7 @@ typename Traits::ObjectFactory::FinalizerQueue Sweep(typename Traits::ObjectFact
             continue;
         }
         auto* objHeader = it->IsArray() ? it->GetArrayHeader()->obj() : it->GetObjHeader();
-        if (auto* extraObject = mm::ExtraObjectData::GetOrNull(objHeader)) {
+        if (auto* extraObject = mm::ExtraObjectData::Get(objHeader)) {
             extraObject->ClearWeakReferenceCounter();
         }
         if (HasFinalizers(objHeader)) {
