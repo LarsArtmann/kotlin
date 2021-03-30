@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.kotlin.library.SerializedMetadata
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.CommonPlatforms
 import org.jetbrains.kotlin.platform.TargetPlatform
@@ -53,7 +54,7 @@ interface InlineSourceTest {
         private var dependencies: List<Module> = emptyList()
 
         @ModuleBuilderDsl
-        fun source(name: String = "test.kt", @Language("kotlin") content: String) {
+        fun source(@Language("kotlin") content: String, name: String = "test.kt") {
             sourceFiles = sourceFiles + SourceFile(name, content)
         }
 
@@ -76,7 +77,7 @@ interface InlineSourceTest {
 
     fun deserializeSourceFile(@Language("kotlin") sourceFileContent: String): CirTreeModule {
         return deserializeModule {
-            source("test.kt", content = sourceFileContent)
+            source(content = sourceFileContent, "test.kt")
         }
     }
 
@@ -85,12 +86,19 @@ interface InlineSourceTest {
     }
 
     fun deserializeModule(module: Module): CirTreeModule
+
+    fun createModuleDescriptor(module: Module): ModuleDescriptor
 }
 
 internal interface InlineSourceTestDelegate : InlineSourceTest {
     val inlineSourceTest: InlineSourceTest
+
     override fun deserializeModule(module: Module): CirTreeModule {
         return inlineSourceTest.deserializeModule(module)
+    }
+
+    override fun createModuleDescriptor(module: Module): ModuleDescriptor {
+        return inlineSourceTest.createModuleDescriptor(module)
     }
 }
 
@@ -113,7 +121,7 @@ class InlineSourceTestImpl(private val disposable: Disposable) : InlineSourceTes
         return defaultCirTreeModuleDeserializer(metadata, typeResolver)
     }
 
-    private fun createModuleDescriptor(module: Module): ModuleDescriptor {
+    override fun createModuleDescriptor(module: Module): ModuleDescriptor {
         val moduleRoot = FileUtil.createTempDirectory(module.name, null)
         module.sourceFiles.forEach { sourceFile ->
             moduleRoot.resolve(sourceFile.name).writeText(sourceFile.content)

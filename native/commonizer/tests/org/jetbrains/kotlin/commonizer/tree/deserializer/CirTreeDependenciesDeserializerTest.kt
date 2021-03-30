@@ -15,9 +15,9 @@ class CirTreeDependenciesDeserializerTest : AbstractCirTreeDeserializerTest() {
     fun `test deserialize with dependencies`() {
         val module = deserializeModule {
             dependency {
-                source("dependencies.kt", "interface Dependency")
+                source("interface Dependency", "dependencies.kt")
             }
-            source("source.kt", "object X: Dependency")
+            source("object X: Dependency", "source.kt")
         }
 
         val xObject = module.assertSingleClass()
