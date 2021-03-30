@@ -116,7 +116,14 @@ class FirTypeIntersectionScope private constructor(
             }.takeIf { it.isNotEmpty() } ?: extractBothWaysWithPrivate
 
             val (mostSpecific, scopeForMostSpecific) = selectMostSpecificMember(extractedOverrides)
-            if (extractedOverrides.size > 1) {
+            if (extractedOverrides.size > 1 &&
+                // If in fact extracted overrides are the same symbols, we should not create intersection
+                // A typical sample here is inheritance of the same class in different places of hierarchy
+                extractedOverrides.mapTo(mutableSetOf()) {
+                    val symbol = it.member
+                    symbol.fir.originalForSubstitutionOverride?.symbol ?: symbol
+                }.size > 1
+            ) {
                 val intersectionOverride = intersectionOverrides.getOrPut(mostSpecific) {
                     val newModality = chooseIntersectionOverrideModality(extractedOverrides)
                     val newVisibility = chooseIntersectionVisibility(extractedOverrides)
