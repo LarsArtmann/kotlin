@@ -68,8 +68,8 @@ private:
 
     bool running_ = false;
 
-    size_t threshold_ = 100;
-    size_t allocationThresholdBytes_ = 1000;
+    size_t threshold_ = 1000;
+    size_t allocationThresholdBytes_ = 10000;
 };
 
 } // namespace mm
