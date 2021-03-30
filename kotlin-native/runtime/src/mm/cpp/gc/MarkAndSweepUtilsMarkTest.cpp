@@ -112,6 +112,7 @@ public:
     const KStdUnorderedSet<ObjHeader*>& marked() const { return marked_; }
 
     static bool TryMark(ObjHeader* object) noexcept { return instance_->marked_.insert(object).second; }
+    static bool IsMarked(ObjHeader* object) noexcept { return instance_->marked_.find(object) != instance_->marked_.end(); }
 
 private:
     static ScopedMarkTraits* instance_;
@@ -349,13 +350,13 @@ TEST_F(MarkAndSweepUtilsMarkTest, MarkTree) {
 
 TEST_F(MarkAndSweepUtilsMarkTest, MarkTreeWithPermanentRoot) {
     Object root{BaseObject::Kind::kPermanent};
-    Object root_field1;
-    Object root_field1_field1;
-    Object root_field1_field2;
-    ObjectArray root_field3;
-    Object root_field3_element1;
-    ObjectArray root_field3_element2;
-    CharArray root_field3_element3;
+    Object root_field1{BaseObject::Kind::kPermanent};
+    Object root_field1_field1{BaseObject::Kind::kPermanent};
+    Object root_field1_field2{BaseObject::Kind::kPermanent};
+    ObjectArray root_field3{BaseObject::Kind::kPermanent};
+    Object root_field3_element1{BaseObject::Kind::kPermanent};
+    ObjectArray root_field3_element2{BaseObject::Kind::kPermanent};
+    CharArray root_field3_element3{BaseObject::Kind::kPermanent};
     root->field1 = root_field1.header();
     root_field1->field1 = root_field1_field1.header();
     root_field1->field2 = root_field1_field2.header();
@@ -366,16 +367,14 @@ TEST_F(MarkAndSweepUtilsMarkTest, MarkTreeWithPermanentRoot) {
 
     Mark({root});
 
-    EXPECT_MARKED(
-            root_field1, root_field1_field1, root_field1_field2, root_field3, root_field3_element1, root_field3_element2,
-            root_field3_element3);
+    EXPECT_MARKED();
 }
 
 TEST_F(MarkAndSweepUtilsMarkTest, MarkTreeWithPermanentMiddle) {
     Object root;
     Object root_field1{BaseObject::Kind::kPermanent};
-    Object root_field1_field1;
-    Object root_field1_field2;
+    Object root_field1_field1{BaseObject::Kind::kPermanent};
+    Object root_field1_field2{BaseObject::Kind::kPermanent};
     ObjectArray root_field3;
     Object root_field3_element1;
     ObjectArray root_field3_element2;
@@ -391,7 +390,7 @@ TEST_F(MarkAndSweepUtilsMarkTest, MarkTreeWithPermanentMiddle) {
     Mark({root});
 
     EXPECT_MARKED(
-            root, root_field1_field1, root_field1_field2, root_field3, root_field3_element1, root_field3_element2, root_field3_element3);
+            root, root_field3, root_field3_element1, root_field3_element2, root_field3_element3);
 }
 
 TEST_F(MarkAndSweepUtilsMarkTest, MarkTreeWithPermanentLeaf) {
@@ -431,28 +430,15 @@ TEST_F(MarkAndSweepUtilsMarkTest, MarkRecursiveTree) {
 
 TEST_F(MarkAndSweepUtilsMarkTest, MarkRecursiveTreeWithPermanentRoot) {
     Object root{BaseObject::Kind::kPermanent};
-    Object inner1;
-    ObjectArray inner2;
-    root->field1 = inner1.header();
-    inner1->field1 = inner2.header();
-    inner2.elements()[0] = root.header();
-
-    Mark({root});
-
-    EXPECT_MARKED(inner1, inner2);
-}
-
-TEST_F(MarkAndSweepUtilsMarkTest, MarkRecursiveTreeWithPermanentMiddle) {
-    Object root;
     Object inner1{BaseObject::Kind::kPermanent};
-    ObjectArray inner2;
+    ObjectArray inner2{BaseObject::Kind::kPermanent};
     root->field1 = inner1.header();
     inner1->field1 = inner2.header();
     inner2.elements()[0] = root.header();
 
     Mark({root});
 
-    EXPECT_MARKED(root, inner2);
+    EXPECT_MARKED();
 }
 
 TEST_F(MarkAndSweepUtilsMarkTest, MarkForest) {
