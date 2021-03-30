@@ -48,21 +48,21 @@ struct FinalizeTraits {
 } // namespace
 
 void mm::SingleThreadMarkAndSweep::ThreadData::SafePointFunctionEpilogue() noexcept {
-    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
+    if (gc_.GetThreshold() == 0 || safePointsCounter_ % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
 }
 
 void mm::SingleThreadMarkAndSweep::ThreadData::SafePointLoopBody() noexcept {
-    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
+    if (gc_.GetThreshold() == 0 || safePointsCounter_ % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
 }
 
 void mm::SingleThreadMarkAndSweep::ThreadData::SafePointExceptionUnwind() noexcept {
-    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
+    if (gc_.GetThreshold() == 0 || safePointsCounter_ % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
