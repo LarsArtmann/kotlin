@@ -23,4 +23,4 @@ public interface B : Base<String>
 
 import p.*
 
-class Foo: A<String>, B
+<!MANY_IMPL_MEMBER_NOT_IMPLEMENTED!>class Foo<!>: A<String>, B

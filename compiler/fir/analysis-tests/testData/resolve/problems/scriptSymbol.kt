@@ -29,6 +29,6 @@ abstract class IrBindableSymbolBase<out D : DeclarationDescriptor>(
     descriptor: D?
 ) : IrBindableSymbol<D>, IrSymbolBase<D>(descriptor)
 
-<!ABSTRACT_MEMBER_NOT_IMPLEMENTED!>class IrScriptSymbolImpl<!>(
+class IrScriptSymbolImpl(
     descriptor: ScriptDescriptor? = null
 ) : IrScriptSymbol, IrBindableSymbolBase<ScriptDescriptor>(descriptor)
