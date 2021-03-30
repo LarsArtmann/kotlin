@@ -49,7 +49,7 @@ private fun millisToNanos(millis: Long): Long = millis * NANOS_IN_MILLIS
  *
  * To get the value of this duration expressed in a particular [duration units][DurationUnit]
  * use the functions [toInt], [toLong], and [toDouble]
- * or the properties [inHours], [inMinutes], [inSeconds], [inNanoseconds], and so on.
+ * or the properties [inWholeHours], [inWholeMinutes], [inWholeSeconds], [inWholeNanoseconds], and so on.
  */
 @SinceKotlin("1.3")
 @ExperimentalTime
