@@ -1,15 +1,34 @@
+import java.net.URI
+
 plugins {
     kotlin("jvm")
 }
 
+val dukatVersion = "0.5.8-rc.4"
+
 repositories {
-    maven("https://kotlin.bintray.com/dukat")
+    ivy {
+        url = URI("https://registry.npmjs.org/dukat/-")
+
+        patternLayout {
+            artifact("[artifact]-[revision].[ext]")
+        }
+
+        metadataSources {
+            artifact()
+        }
+    }
 }
+
+val dukat by configurations.creating
 
 dependencies {
     implementation(kotlinStdlib())
-    implementation("org.jetbrains.dukat:dukat:0.5.8-rc.4")
     implementation("org.jsoup:jsoup:1.8.2")
+    dukat(group = "dukat", name="dukat", version = dukatVersion, ext = "tgz")
+    implementation(tarTree(dukat.resolvedConfiguration.resolvedArtifacts.single().file).matching {
+        include("**/build/runtime/dukat-cli.jar")
+    })
 }
 
 task("downloadIDL", JavaExec::class) {
