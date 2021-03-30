@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.ir.linkage.IrDeserializer
 import org.jetbrains.kotlin.ir.linkage.IrProvider
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.util.SymbolTable
-import org.jetbrains.kotlin.ir.util.TypeTranslator
 import org.jetbrains.kotlin.ir.util.noUnboundLeft
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
@@ -35,13 +34,24 @@ import org.jetbrains.kotlin.psi2ir.generators.TypeTranslatorImpl
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.utils.SmartList
 
-typealias Psi2IrPostprocessingStep = (IrModuleFragment) -> Unit
+fun interface Psi2IrPostprocessingStep {
+    fun invoke(irModuleFragment: IrModuleFragment)
+}
+
+fun interface Psi2IrPreprocessingStep {
+    fun invoke(ktFiles: Collection<KtFile>, context: GeneratorContext)
+}
 
 class Psi2IrTranslator(
     val languageVersionSettings: LanguageVersionSettings,
     val configuration: Psi2IrConfiguration,
 ) {
+    private val preprocessingSteps = SmartList<Psi2IrPreprocessingStep>()
     private val postprocessingSteps = SmartList<Psi2IrPostprocessingStep>()
+
+    fun addPreprocessingStep(step: Psi2IrPreprocessingStep) {
+        preprocessingSteps.add(step)
+    }
 
     fun addPostprocessingStep(step: Psi2IrPostprocessingStep) {
         postprocessingSteps.add(step)
@@ -75,6 +85,7 @@ class Psi2IrTranslator(
         expectDescriptorToSymbol: MutableMap<DeclarationDescriptor, IrSymbol>? = null
     ): IrModuleFragment {
         val moduleGenerator = ModuleGenerator(context, expectDescriptorToSymbol)
+        preprocessingSteps.forEach { it.invoke(ktFiles, context) }
         val irModule = moduleGenerator.generateModuleFragment(ktFiles)
 
         val deserializers = irProviders.filterIsInstance<IrDeserializer>()
