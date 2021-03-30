@@ -33,11 +33,13 @@ void Mark(KStdVector<ObjHeader*> graySet) noexcept {
             }
         }
 
-        traverseReferredObjects(top, [&graySet](ObjHeader* field) noexcept {
-            if (!isNullOrMarker(field)) {
-                graySet.push_back(field);
-            }
-        });
+        if (!top->permanent()) {
+            traverseReferredObjects(top, [&graySet](ObjHeader* field) noexcept {
+                if (!isNullOrMarker(field) && !field->permanent() && !Traits::IsMarked(field)) {
+                    graySet.push_back(field);
+                }
+            });
+        }
 
         if (auto* extraObjectData = mm::ExtraObjectData::Get(top)) {
             auto* weakCounter = *extraObjectData->GetWeakCounterLocation();

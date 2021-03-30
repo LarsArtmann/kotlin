@@ -17,6 +17,11 @@ using namespace kotlin;
 namespace {
 
 struct MarkTraits {
+    static bool IsMarked(ObjHeader* object) noexcept {
+        auto& objectData = mm::ObjectFactory<mm::SingleThreadMarkAndSweep>::NodeRef::From(object).GCObjectData();
+        return objectData.color() == mm::SingleThreadMarkAndSweep::ObjectData::Color::kBlack;
+    }
+
     static bool TryMark(ObjHeader* object) noexcept {
         auto& objectData = mm::ObjectFactory<mm::SingleThreadMarkAndSweep>::NodeRef::From(object).GCObjectData();
         if (objectData.color() == mm::SingleThreadMarkAndSweep::ObjectData::Color::kBlack) return false;
