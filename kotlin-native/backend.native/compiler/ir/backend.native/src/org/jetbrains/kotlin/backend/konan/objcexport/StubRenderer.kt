@@ -16,7 +16,7 @@ object StubRenderer {
     internal fun render(stub: Stub<*>, shouldExportKDoc: Boolean): List<String> = collect {
         stub.run {
 
-            val kDocLines = descriptor?.extractKDocLines()
+            val kDocLines = if (shouldExportKDoc) descriptor?.extractKDocLines() else null
 
             if (kDocLines != null || comment != null) {
                 +"" // Probably makes the output more readable.
